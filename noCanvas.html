@@ -20,7 +20,7 @@
           @change="onChange"
         />
         <h5>{{state}}</h5>
-        <div class="container">
+        <div class="container" :style="wrapStyle">
           <div class="tri1" :style="style"></div>
           <div class="tri2" :style="style"></div>
         </div>
@@ -32,18 +32,26 @@
       el: "#app",
 
       data: {
-        space: 20784,
+        space: 207840,
         state: "loading....",
         radius:100,
       
       },
       computed:{
+        wrapStyle:function(){
+            return{
+                width: `${this.radius*2/(Math.sqrt(3)/2)}px`,
+                height: `${this.radius*2/(Math.sqrt(3)/2)}px`,
+
+            }
+        },
         style:function(){
         return{
           borderLeft: `${Math.ceil(Math.sqrt(3)*this.radius)}px solid transparent`,
           borderTop: `${this.radius}px solid transparent`,
-          borderRight:  `${Math.ceil(Math.sqrt(3)*this.radius)}px solid green`,
+          borderRight:  `${Math.ceil(Math.sqrt(3)*this.radius)}px solid pink`,
           borderBottom: `${this.radius}px solid transparent`,
+     
         }
         }
       },
@@ -78,17 +86,22 @@
     }
   .container{
     position: relative;
+    background:yellow;
+    top: 0;
+    border-radius: 100%;
+    overflow: hidden;
   }
   .tri1, .tri2{
     position: absolute;
-    top: 0;
+    top: 31%;
+    right: 19%;
     margin: 0 auto;
     width: 0px;
     height: 0px;
-    transition: border 1s;
+    transition: all 1s;
   }
   .tri1 {
-    transform:translateY(-61.8%) rotate(30deg);
+    transform:translateY(-57%) rotate(30deg);
     
   }
   .tri2{
