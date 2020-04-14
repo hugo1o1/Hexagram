@@ -28,32 +28,84 @@
     </div>
   </body>
   <script>
+    let chnNumChar = {
+      零: 0,
+      一: 1,
+      二: 2,
+      三: 3,
+      四: 4,
+      五: 5,
+      六: 6,
+      七: 7,
+      八: 8,
+      九: 9,
+    };
+
+    let chnNameValue = {
+      十: { value: 10, secUnit: false },
+      百: { value: 100, secUnit: false },
+      千: { value: 1000, secUnit: false },
+      万: { value: 10000, secUnit: true },
+      亿: { value: 100000000, secUnit: true },
+    };
+
+    function ChineseToNumber(chnStr) {
+      let rtn = 0;
+      let section = 0;
+      let number = 0;
+      let secUnit = false;
+      let str = chnStr.split("");
+
+      for (let i = 0; i < str.length; i++) {
+        let num = chnNumChar[str[i]];
+        if (typeof num !== "undefined") {
+          number = num;
+          if (i === str.length - 1) {
+            section += number;
+          }
+        } else {
+          let unit = chnNameValue[str[i]].value;
+          secUnit = chnNameValue[str[i]].secUnit;
+          if (secUnit) {
+            section = (section + number) * unit;
+            rtn += section;
+            section = 0;
+          } else {
+            section += number * unit;
+          }
+          number = 0;
+        }
+      }
+      return rtn + section;
+    }
+  </script>
+  <script>
     new Vue({
       el: "#app",
 
       data: {
         space: 207840,
         state: "loading....",
-        radius:100,
-      
+        radius: 100,
       },
-      computed:{
-        wrapStyle:function(){
-            return{
-                width: `${this.radius*2/(Math.sqrt(3)/2)}px`,
-                height: `${this.radius*2/(Math.sqrt(3)/2)}px`,
-
-            }
+      computed: {
+        wrapStyle: function () {
+          return {
+            width: `${this.radius * 2}px`,
+            height: `${this.radius * 2}px`,
+          };
         },
-        style:function(){
-        return{
-          borderLeft: `${Math.ceil(Math.sqrt(3)*this.radius)}px solid transparent`,
-          borderTop: `${this.radius}px solid transparent`,
-          borderRight:  `${Math.ceil(Math.sqrt(3)*this.radius)}px solid pink`,
-          borderBottom: `${this.radius}px solid transparent`,
-     
-        }
-        }
+        style: function () {
+          console.log(this.radius)
+          return {
+            borderLeft: `0 solid transparent`,
+            borderTop: `${Math.floor(Math.sqrt(3)/2*this.radius)}px solid transparent`,
+            borderRight: `${Math.floor(
+              3/2 * this.radius
+            )}px solid pink`,
+            borderBottom: `${Math.floor(Math.sqrt(3)/2*this.radius)}px solid transparent`,
+          };
+        },
       },
       mounted() {
         // 初始化
@@ -64,48 +116,67 @@
           this.state = "waiting...";
         },
         onChange() {
+          // 检查是否是中文
+           
+            const reg_zh = /.*[\u4e00-\u9fa5]+.*/;
+          if(reg_zh.test(this.space)){
+            this.space = ChineseToNumber(this.space)
+          }
+          
           if (this.verify(this.space)) {
             // 圆的半径
-           this.radius = Math.ceil(Math.sqrt(this.space / (12 * Math.sqrt(3))));
-           this.state = "好啦,这是你想要的六芒星~"
+            this.radius = Math.ceil(
+              Math.sqrt(this.space / (12 * Math.sqrt(3)))
+            );
+            this.state = "好啦,这是你想要的六芒星~";
           }
         },
+        zhToNUm(value){
+          return ChineseToNumber(value)
+        }, 
         verify(value) {
-          return true;
-        },
 
+        
+          // 检查是否是数字
+          const reg = /^[0-9]+.?[0-9]*/;
+         if(reg.test(value)){
+            return true
+         }else{
+          this.state = "输入阿拉伯或者中文数字代表面积哦";
+          
+         }
+        },
       },
     });
   </script>
 </html>
 
 <style>
-    input{
-        position: relative;
-        z-index: 100;
-    }
-  .container{
+  input {
     position: relative;
-    background:yellow;
+    z-index: 100;
+  }
+  .container {
+    position: relative;
+    background: yellow;
     top: 0;
     border-radius: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
-  .tri1, .tri2{
+  .tri1,
+  .tri2 {
     position: absolute;
-    top: 31%;
-    right: 19%;
-    margin: 0 auto;
+    /* top: 31%;
+    right: 19%; */
+
     width: 0px;
     height: 0px;
     transition: all 1s;
   }
   .tri1 {
-    transform:translateY(-57%) rotate(30deg);
-    
+    transform:rotate(30deg);
   }
-  .tri2{
- 
-    transform: rotate(-30deg);
+  .tri2 {
+    transform:translateY(15%) rotate(-30deg);
   }
 </style>
