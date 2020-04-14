@@ -8,7 +8,6 @@
     <script src="//cdn.bootcss.com/vue/2.3.2/vue.min.js"></script>
   </head>
 
-  
   <body>
     <div id="app">
       <div>
@@ -21,7 +20,10 @@
           @change="onChange"
         />
         <h5>{{state}}</h5>
-        <canvas id="canvas" width="200" height="200"></canvas>
+        <div class="container" :style="wrapStyle">
+          <div class="tri1" :style="style"></div>
+          <div class="tri2" :style="style"></div>
+        </div>
       </div>
     </div>
   </body>
@@ -84,89 +86,97 @@
       data: {
         space: 207840,
         state: "loading....",
+        radius: 100,
+      },
+      computed: {
+        wrapStyle: function () {
+          return {
+            width: `${this.radius * 2}px`,
+            height: `${this.radius * 2}px`,
+          };
+        },
+        style: function () {
+          console.log(this.radius)
+          return {
+            borderLeft: `0 solid transparent`,
+            borderTop: `${Math.floor(Math.sqrt(3)/2*this.radius)}px solid transparent`,
+            borderRight: `${Math.floor(
+              3/2 * this.radius
+            )}px solid pink`,
+            borderBottom: `${Math.floor(Math.sqrt(3)/2*this.radius)}px solid transparent`,
+          };
+        },
       },
       mounted() {
-          // 初始化
-          this.onChange()
+        // 初始化
+        this.onChange();
       },
       methods: {
-        focus(){
-            this.state = "waiting..."
+        focus() {
+          this.state = "waiting...";
         },
         onChange() {
-            // 检查是否是中文
+          // 检查是否是中文
+           
             const reg_zh = /.*[\u4e00-\u9fa5]+.*/;
           if(reg_zh.test(this.space)){
             this.space = ChineseToNumber(this.space)
           }
-          console.log(this.space)
           
           if (this.verify(this.space)) {
             // 圆的半径
-            let radius = Math.ceil(Math.sqrt(this.space / (12 * Math.sqrt(3))));
-            // 重画
-            this.draw(radius);
+            this.radius = Math.ceil(
+              Math.sqrt(this.space / (12 * Math.sqrt(3)))
+            );
+            this.state = "好啦,这是你想要的六芒星~";
           }
         },
         zhToNUm(value){
           return ChineseToNumber(value)
-        },
+        }, 
         verify(value) {
+
+        
           // 检查是否是数字
           const reg = /^[0-9]+.?[0-9]*/;
          if(reg.test(value)){
             return true
          }else{
           this.state = "输入阿拉伯或者中文数字代表面积哦";
-
+          
          }
-        },
-    
-        draw(radius) {
-            let width =2*radius+20,
-            height = 2*radius+20;
-          let canvas = document.querySelector("#canvas"),
-            context = canvas.getContext("2d");
-            canvas.width= width;
-            canvas.height = height;
-
-
-          // 原点坐标
-          let originX = width / 2,
-            originY = height / 2;
-
-
-          context.lineWidth = 1;
-
-          // 画内圆
-          context.strokeStyle = "#000";
-          context.beginPath();
-          context.arc(originX, originY, radius, 0, 2 * Math.PI);
-          context.stroke();
-          context.closePath();
-        // 画外圆
-          context.beginPath();
-          context.arc(originX, originY, radius + 10, 0, 2 * Math.PI);
-          context.stroke();
-          context.closePath();
-
-          // 把原点移动到圆心，旋转之后才不会变形
-          context.translate(originX, originY);
-          for (let i = 0; i < 6; i++) {
-            // 画完三角形后旋转一半角度画另一个三角形
-            if (i === 3) {
-              context.rotate((Math.PI * 2) / 6);
-            }
-            context.moveTo(0, -radius);
-            context.lineTo(radius * Math.sin(Math.PI / 3), radius / 2);
-            context.stroke();
-            context.rotate((Math.PI * 2) / 3);
-            this.state = "好啦,这是你想要的六芒星~"
-          }
         },
       },
     });
   </script>
 </html>
 
-<script></script>
+<style>
+  input {
+    position: relative;
+    z-index: 100;
+  }
+  .container {
+    position: relative;
+    background: yellow;
+    top: 0;
+    border-radius: 100%;
+    /* overflow: hidden; */
+  }
+  .tri1,
+  .tri2 {
+    position: absolute;
+    /* top: 31%;
+    right: 19%; */
+
+    width: 0px;
+    height: 0px;
+    transition: all 1s;
+  }
+  .tri1 {
+    transform:rotate(30deg);
+  }
+  .tri2 {
+    transform:translateY(15%) rotate(-30deg);
+  }
+</style>
